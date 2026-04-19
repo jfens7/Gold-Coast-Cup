@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>GCC 2026 | TITANIUM EDITION</title>
+    <title>GCC 2026 | EXECUTIVE GOLD EDITION</title>
     
     <script src="https://js.stripe.com/v3/"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -13,17 +13,22 @@
 
     <style>
         /* ==========================================================================
-           TITANIUM CORE & APPLE-GRADE VARIABLES
+           EXECUTIVE GOLD & APPLE-GRADE VARIABLES
            ========================================================================== */
         :root {
             --canvas: #000000;
-            --glass: rgba(10, 10, 12, 0.7);
+            --glass: rgba(18, 18, 20, 0.5); 
             --border-dim: rgba(255, 255, 255, 0.08);
-            --border-gold: rgba(212, 175, 55, 0.4);
-            --gold-mid: #D4AF37;
-            --accent: #007aff;
-            --text-p: #ffffff;
-            --text-s: #a1a1a6;
+            
+            --gold-light: #fbea98;
+            --gold-mid: #d4af37;
+            --gold-dark: #aa771c;
+            --gold-glow: rgba(212, 175, 55, 0.15);
+            --gold-border: rgba(212, 175, 55, 0.35);
+
+            --accent: #d4af37; 
+            --text-p: #f5f5f7;
+            --text-s: #86868b;
             --error: #ff3b30;
             --error-bg: rgba(255, 59, 48, 0.1);
             --success: #34c759;
@@ -42,56 +47,118 @@
         }
 
         /* 3D WEBGL CANVAS */
-        #webgl-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
+        #webgl-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
 
         /* FOREGROUND UI */
         .ui-layer {
             position: relative; z-index: 1; height: 100vh; overflow-y: auto; overflow-x: hidden;
-            -webkit-overflow-scrolling: touch; scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch; scroll-behavior: smooth; perspective: 1000px;
         }
         .layout-frame { max-width: 680px; margin: 0 auto; padding: calc(60px + var(--safe-top)) 20px calc(120px + var(--safe-bot)) 20px; }
 
-        /* DYNAMIC GOLD TYPOGRAPHY */
+        /* BRANDING & TYPOGRAPHY */
         .brand-briefing { display: flex; flex-direction: column; align-items: center; margin-bottom: 60px; }
         .presented-by { font-size: 0.8rem; font-weight: 800; color: var(--text-s); letter-spacing: 4px; text-transform: uppercase; margin-bottom: 15px; text-align: center; }
         
         .hero-title { font-size: clamp(3.5rem, 13vw, 7rem); font-weight: 900; letter-spacing: -3px; line-height: 0.85; margin: 0; text-align: center; position: relative; }
-        .titanium-text { background: linear-gradient(180deg, #ffffff 0%, #a1a1a6 50%, #424245 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .titanium-text { 
+            background: linear-gradient(180deg, #ffffff 0%, #86868b 50%, #424245 100%); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
         
         .gold-dynamic {
-            background: linear-gradient(120deg, #8B6914, #FFFACD, #D4AF37, #FFFACD, #8B6914);
+            background: linear-gradient(120deg, var(--gold-dark), var(--gold-light), var(--gold-mid), var(--gold-light), var(--gold-dark));
             background-size: 300% 300%;
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent;
             background-position: var(--light-x, 0%) center;
-            filter: drop-shadow(0 10px 20px rgba(212, 175, 55, 0.25));
+            filter: drop-shadow(0 4px 24px rgba(212, 175, 55, 0.25));
             transition: background-position 0.1s linear;
         }
 
-        /* BENTO GLASS CARDS */
+        /* EDGE-LIT BENTO GLASS CARDS (DYNAMIC 3D SCROLL LIGHTING) */
         .bento-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 50px; }
         @media (min-width: 768px) { .bento-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; } .span-full { grid-column: span 2; } }
 
         .card {
-            background: var(--glass); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
-            border: 1px solid var(--border-dim); border-radius: 36px; padding: 30px;
-            transition: transform 0.4s var(--spring); box-shadow: inset 0 0 20px rgba(255,255,255,0.02);
+            background: linear-gradient(145deg, rgba(30, 30, 32, 0.5) 0%, rgba(10, 10, 12, 0.8) 100%);
+            backdrop-filter: blur(40px) saturate(200%); 
+            -webkit-backdrop-filter: blur(40px) saturate(200%);
+            border: 1px solid var(--border-dim); 
+            border-radius: 36px; 
+            padding: 32px;
+            /* 3D Transform mapped to Scroll */
+            transform: rotateX(var(--tilt-angle, 0deg));
+            transition: transform 0.1s linear, border-color 0.6s var(--spring), box-shadow 0.6s var(--spring); 
+            box-shadow: 
+                inset 0 1px 1px rgba(255,255,255,0.15), 
+                inset 0 -1px 1px rgba(255,255,255,0.02),
+                0 calc(20px + var(--shadow-y, 0px)) 40px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+            cursor: default;
         }
-        .card-vip { border-color: var(--border-gold); background: linear-gradient(180deg, rgba(20,18,10,0.8) 0%, rgba(10,8,5,0.8) 100%); }
+
+        /* Internal Scroll-Tracked Gold Glare */
+        .card::after {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% calc(50% + var(--glare-y, 0px)), rgba(212, 175, 55, 0.1), transparent 70%);
+            pointer-events: none;
+            mix-blend-mode: screen;
+        }
         
-        .c-label { font-size: 0.75rem; font-weight: 800; color: var(--text-s); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; }
-        .c-val { font-size: 1.7rem; font-weight: 900; letter-spacing: -1px; color: #fff; line-height: 1.2;}
-        .c-desc { color: var(--text-s); margin-top: 14px; font-size: 1.05rem; line-height: 1.6; }
+        /* Champagne Light Sweep (Hover) */
+        .card::before {
+            content: ""; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(251, 234, 152, 0.05), transparent);
+            transform: skewX(-20deg); transition: 0.7s var(--expo); z-index: 2; pointer-events: none;
+        }
+        .card:hover::before { left: 150%; }
+        
+        /* Gold Floating Hover Mechanics */
+        .card:hover { 
+            border-color: var(--gold-border); 
+            box-shadow: 
+                inset 0 1px 1px rgba(251, 234, 152, 0.3), 
+                0 30px 60px rgba(0,0,0,0.8),
+                0 0 50px var(--gold-glow);
+        }
+
+        /* VIP Hero Card */
+        .card-vip { 
+            border-color: rgba(212, 175, 55, 0.2); 
+            background: radial-gradient(circle at top right, rgba(212, 175, 55, 0.12), transparent 60%),
+                        linear-gradient(180deg, rgba(30, 30, 32, 0.7) 0%, rgba(10, 10, 12, 0.9) 100%); 
+        }
+        
+        /* Typography Polish */
+        .c-label { font-size: 0.75rem; font-weight: 800; color: var(--text-s); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; position: relative; z-index: 3;}
+        .c-val { font-size: 1.8rem; font-weight: 900; letter-spacing: -1px; color: #fff; line-height: 1.2; text-shadow: 0 4px 10px rgba(0,0,0,0.5); position: relative; z-index: 3;}
+        .c-desc { color: var(--text-s); margin-top: 14px; font-size: 1.05rem; line-height: 1.6; position: relative; z-index: 3;}
         .text-high { color: #fff; font-weight: 700; }
 
+        .card-divider { height: 1px; width: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); margin: 24px 0; position: relative; z-index: 3;}
+        .icon-gold { background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold-mid) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.1em; filter: drop-shadow(0 2px 4px rgba(212,175,55,0.2)); }
+
         /* BRACKET PILLS */
-        .bracket-flex { display: flex; flex-direction: column; gap: 15px; margin: 15px 0 25px 0; }
-        .bracket-pill { background: rgba(0,0,0,0.6); border: 1px solid rgba(212,175,55,0.3); border-radius: 20px; padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; }
+        .bracket-flex { display: flex; flex-direction: column; gap: 15px; margin: 15px 0 10px 0; position: relative; z-index: 3;}
+        .bracket-pill { 
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); 
+            border-radius: 20px; padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; 
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5); transition: 0.3s;
+        }
+        .bracket-pill:hover { border-color: var(--gold-border); background: rgba(212, 175, 55, 0.05); }
         .b-name { font-size: 1.2rem; font-weight: 800; color: var(--gold-mid); }
         .b-val { font-size: 1.6rem; font-weight: 900; color: #fff; letter-spacing: -1px; }
         @media (min-width: 768px) { .bracket-flex { flex-direction: row; } .bracket-pill { flex: 1; flex-direction: column; align-items: flex-start; gap: 8px;} }
 
-        /* REGISTRATION VAULT (THE FORM) */
-        .vault-panel { background: rgba(10, 10, 12, 0.95); backdrop-filter: blur(50px); border: 1px solid var(--border-dim); border-radius: 44px; padding: 40px 25px; box-shadow: 0 40px 100px rgba(0,0,0,0.9); }
+        /* REGISTRATION VAULT */
+        .vault-panel { 
+            background: rgba(10, 10, 12, 0.95); backdrop-filter: blur(50px) saturate(180%); 
+            border: 1px solid var(--border-dim); border-radius: 44px; padding: 40px 25px; 
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 40px 100px rgba(0,0,0,0.9); 
+        }
         @media (min-width: 768px) { .vault-panel { padding: 60px 50px; } }
 
         .v-header { text-align: center; margin-bottom: 45px; }
@@ -104,49 +171,59 @@
             width: 100%; background: #000; border: 1px solid var(--border-dim); padding: 22px; border-radius: 20px;
             color: #fff; font-size: 16px; transition: 0.3s; -webkit-appearance: none; font-family: inherit;
         }
-        .form-input:focus { border-color: var(--accent); box-shadow: 0 0 30px rgba(0,122,255,0.3); }
+        .form-input:focus { border-color: var(--gold-mid); box-shadow: 0 0 20px var(--gold-glow); }
         .input-grid { display: flex; flex-direction: column; gap: 15px; }
         @media (min-width: 768px) { .input-grid { flex-direction: row; } }
 
-        /* CUSTOM T&C CHECKBOX */
         .tc-box { display: flex; align-items: flex-start; gap: 15px; margin: 40px 0; background: rgba(255,255,255,0.02); padding: 20px; border-radius: 20px; border: 1px solid var(--border-dim); cursor: pointer; transition: 0.3s; }
         .tc-box:hover { background: rgba(255,255,255,0.05); }
         .chk-ui { appearance: none; -webkit-appearance: none; width: 28px; height: 28px; min-width: 28px; background: #000; border: 2px solid var(--text-s); border-radius: 8px; position: relative; cursor: pointer; transition: 0.3s; display: grid; place-content: center; }
         .chk-ui::before { content: "\f00c"; font-family: "Font Awesome 6 Free"; font-weight: 900; color: #000; font-size: 14px; transform: scale(0); transition: 0.3s; }
-        .chk-ui:checked { background: #fff; border-color: #fff; }
+        .chk-ui:checked { background: var(--gold-mid); border-color: var(--gold-mid); }
         .chk-ui:checked::before { transform: scale(1); }
 
-        /* BUTTONS & ERRORS */
-        .btn-core { width: 100%; padding: 25px; border-radius: 22px; border: none; background: #fff; color: #000; font-size: 1.3rem; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; transition: 0.3s; }
-        .btn-core:active { transform: scale(0.96); }
-        .btn-blue { background: var(--accent); color: #fff; box-shadow: 0 10px 30px rgba(0,122,255,0.3); }
-        .btn-ghost { background: none; border: none; color: var(--text-s); width: 100%; margin-top: 30px; font-weight: 800; font-size: 1.05rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        
+        .btn-core { width: 100%; padding: 25px; border-radius: 22px; border: none; background: #ffffff; color: #000000; font-size: 1.2rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1); }
+        .btn-core:hover { background: var(--gold-light); transform: scale(0.98); box-shadow: 0 10px 30px var(--gold-glow); }
+        .btn-ghost { background: none; border: none; color: var(--text-s); width: 100%; margin-top: 30px; font-weight: 800; font-size: 1.05rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s;}
+        .btn-ghost:hover { color: #fff; }
         .err-label { color: var(--error); font-size: 0.85rem; margin-top: 10px; font-weight: 800; display: none; padding: 10px 15px; background: var(--error-bg); border-radius: 10px; border: 1px solid rgba(255,59,48,0.3); }
         .shake { animation: shakeUI 0.4s; border-color: var(--error) !important; }
         @keyframes shakeUI { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
 
-        /* SEARCH PORTAL */
-        .search-portal { position: absolute; width: 100%; background: #161618; border: 1px solid var(--border-dim); border-radius: 20px; max-height: 250px; overflow-y: auto; display: none; z-index: 10; margin-top: 10px; }
-        .s-row { padding: 18px 20px; border-bottom: 1px solid rgba(255,255,255,0.03); cursor: pointer; font-size: 1.05rem; color: #fff; }
-        .s-row:hover { background: var(--accent); }
-
-        /* VIEW ROUTING */
+        /* VIEW ROUTING & APPLE KEYNOTE INTRO */
         .v-screen { display: none; opacity: 0; transform: scale(0.96) translateY(30px); }
         .v-screen.active { display: block; animation: reveal 0.8s var(--expo) forwards; }
         @keyframes reveal { to { opacity: 1; transform: scale(1) translateY(0); } }
 
-        .sys-footer { margin-top: 80px; text-align: center; border-top: 1px solid var(--border-dim); padding: 50px 0; opacity: 0.3; font-size: 0.8rem; font-weight: 700; color: #fff;}
+        #view-intro { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000000; z-index: 9999; display: flex; align-items: center; justify-content: center; transform: none; }
+        .intro-text-box { opacity: 0; transform: scale(0.95) translateY(20px); transition: 2s cubic-bezier(0.19, 1, 0.22, 1); text-align: center; padding: 20px;}
+        .intro-text-box.show { opacity: 1; transform: scale(1) translateY(0); }
+        .dev-bypass-zone { position: absolute; top: 0; left: 0; width: 100px; height: 100px; z-index: 10000; cursor: pointer;}
+
+        .sys-footer { margin-top: 80px; text-align: center; border-top: 1px solid var(--border-dim); padding: 50px 0; font-size: 0.8rem; font-weight: 700; color: rgba(255,255,255,0.3);}
+        .admin-btn { display: inline-flex; align-items: center; gap: 6px; color: var(--text-s); text-decoration: none; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; padding: 10px 20px; border-radius: 20px; border: 1px solid transparent; transition: 0.3s; margin-top: 20px; }
+        .admin-btn:hover { background: rgba(255,255,255,0.05); border-color: var(--border-dim); color: #fff; }
     </style>
 </head>
 <body>
 
     <div id="webgl-container"></div>
 
+    <div id="view-intro" class="v-screen active">
+        <div class="dev-bypass-zone" onclick="Engine.bypassIntro()" title="Dev Bypass"></div>
+        
+        <div class="intro-text-box" id="intro-msg">
+            <p style="color: var(--gold-mid); font-weight: 800; letter-spacing: 4px; text-transform: uppercase; font-size: 0.85rem; margin-bottom: 20px;">A New Era</p>
+            <h1 style="font-size: clamp(2rem, 8vw, 4rem); font-weight: 900; color: #fff; letter-spacing: -2px; line-height: 1.1;">
+                Something new and exciting<br>is coming in May 2026.
+            </h1>
+        </div>
+    </div>
+
     <div class="ui-layer" id="scroll-root">
         <div class="layout-frame">
 
-            <div id="view-home" class="v-screen active">
+            <div id="view-home" class="v-screen">
                 <div class="brand-briefing">
                     <img src="gctta_logo.png" style="width:80px; border-radius:18px; margin-bottom:20px;" onerror="this.style.display='none'">
                     <div class="presented-by">Presented by Gold Coast Table Tennis</div>
@@ -159,12 +236,13 @@
 
                 <div class="bento-grid">
                     <div class="card card-vip span-full">
-                        <div class="c-label" style="color: var(--gold-mid);"><i class="fa-solid fa-crown"></i> Tournament Format</div>
+                        <div class="c-label"><i class="fa-solid fa-layer-group icon-gold"></i> <span style="color: var(--gold-mid);">Tournament Format</span></div>
                         <div class="bracket-flex">
                             <div class="bracket-pill"><div class="b-name">EVENT A</div><div class="b-val">&lt; 1000 RC</div></div>
                             <div class="bracket-pill"><div class="b-name">EVENT B</div><div class="b-val">1001-1400 RC</div></div>
                         </div>
-                        <p class="c-desc" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                        <div class="card-divider"></div>
+                        <p class="c-desc">
                             <span class="text-high">GROUP STAGE &rarr; PROGRESSIVE KNOCKOUT</span><br>
                             Players compete in groups before advancing to the progressive brackets.
                         </p>
@@ -174,19 +252,21 @@
                     </div>
 
                     <div class="card span-full">
-                        <div class="c-label">Official Venue & HQ</div>
+                        <div class="c-label"><i class="fa-solid fa-location-dot icon-gold"></i> Official Venue & HQ</div>
                         <div class="c-val">GCTTA Molendinar</div>
-                        <p class="c-desc"><span class="text-high">1 Herbertson Drive</span> <br>Molendinar, QLD 4214. <br>Start Time: <strong style="color: var(--accent);">10:00 AM Sharp</strong>.</p>
+                        <div class="card-divider"></div>
+                        <p class="c-desc"><span class="text-high">1 Herbertson Drive</span> <br>Molendinar, QLD 4214. <br>Start Time: <strong style="color: #fff;">10:00 AM Sharp</strong>.</p>
                     </div>
 
-                    <div class="card"><div class="c-label">Scheduled</div><div class="c-val">MAY 2026</div><div style="font-size:0.9rem; color:var(--text-s); margin-top:5px;">23rd or 30th</div></div>
-                    <div class="card"><div class="c-label">Entry Fee</div><div class="c-val">$60.00</div></div>
-                    <div class="card"><div class="c-label">Controller</div><div class="c-val" style="font-size:1.4rem;">Jakob Fensom</div></div>
-                    <div class="card"><div class="c-label">Referee</div><div class="c-val" style="font-size:1.4rem;">Lukas Kozak</div></div>
+                    <div class="card"><div class="c-label"><i class="fa-regular fa-calendar icon-gold"></i> Scheduled</div><div class="c-val">MAY 2026</div><div style="font-size:0.9rem; color:var(--text-s); margin-top:5px;">23rd or 30th</div></div>
+                    <div class="card"><div class="c-label"><i class="fa-solid fa-tag icon-gold"></i> Entry Fee</div><div class="c-val">$60.00</div></div>
+                    <div class="card"><div class="c-label"><i class="fa-solid fa-shield-halved icon-gold"></i> Controller</div><div class="c-val" style="font-size:1.4rem;">Jakob Fensom</div></div>
+                    <div class="card"><div class="c-label"><i class="fa-solid fa-gavel icon-gold"></i> Referee</div><div class="c-val" style="font-size:1.4rem;">Lukas Kozak</div></div>
 
                     <div class="card span-full">
-                        <div class="c-label">Participation Cap</div>
+                        <div class="c-label"><i class="fa-solid fa-users icon-gold"></i> Participation Cap</div>
                         <div class="c-val" style="font-size:2rem;">Max 48 Players</div>
+                        <div class="card-divider"></div>
                         <p class="c-desc">Registrations strictly capped. Overflow entries automatically queue into the <strong>Priority Waitlist</strong>.</p>
                     </div>
                 </div>
@@ -250,7 +330,10 @@
                 </div>
             </div>
 
-            <div class="sys-footer">© 2026 Gold Coast Table Tennis Association</div>
+            <div class="sys-footer">
+                © 2026 Gold Coast Table Tennis Association<br>
+                <a href="admin.html" class="admin-btn"><i class="fa-solid fa-shield-halved"></i> Admin Portal</a>
+            </div>
 
         </div>
     </div>
@@ -259,7 +342,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-analytics.js";
 
-        // Your web app's Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyDXs26nvuuj0_F26Ai7synD6-eFVWnWaC0",
             authDomain: "gold-coast-cup.firebaseapp.com",
@@ -270,7 +352,6 @@
             measurementId: "G-85EEM7QP1J"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
         console.log("🟢 Firebase App & Analytics initialized.");
