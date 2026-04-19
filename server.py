@@ -23,7 +23,7 @@ stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
 # Firebase Database Initialization
 # Using your specific filename from the GitHub sidebar
 try:
-    cred = credentials.Certificate("gold-coast-cup-firebase-adminsdk-fbsvc-9492d1d89b.json")
+    cred = credentials.Certificate("gold-coast-cup-firebase.json")
     firebase_admin.initialize_app(cred)
     db = firestore.client()
     logger.info("Firebase Firestore initialized successfully.")
