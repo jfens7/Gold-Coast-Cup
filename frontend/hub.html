@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gold Coast Cup | Hub</title>
+    <style>
+        :root {
+            --bg-dark: #000000;
+            --card-dark: #1c1c1e;
+            --accent: #0a84ff;
+            --text-main: #ffffff;
+            --text-muted: #8e8e93;
+            --border: #38383a;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            padding-bottom: 80px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Glassmorphism Header */
+        .header {
+            position: sticky;
+            top: 0;
+            background: rgba(28, 28, 30, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 1.5rem 1rem 1rem 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            z-index: 100;
+        }
+
+        .header h1 {
+            margin: 0 0 1rem 0;
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .live-indicator {
+            background: rgba(255, 59, 48, 0.15);
+            color: #ff453a;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .pulse {
+            width: 8px;
+            height: 8px;
+            background: #ff453a;
+            border-radius: 50%;
+            animation: pulse-anim 2s infinite;
+        }
+
+        /* Apple-style Search Bar */
+        .search-container { position: relative; }
+        .search-container input {
+            width: 100%;
+            background: rgba(118, 118, 128, 0.24);
+            border: none;
+            padding: 12px 16px;
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            box-sizing: border-box;
+            outline: none;
+        }
+        .search-container input::placeholder { color: var(--text-muted); }
+        .search-container input:focus { background: rgba(118, 118, 128, 0.35); }
+
+        .container { padding: 1rem; }
+        .section-title { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 1rem; font-weight: 600; }
+
+        /* Premium Match Card */
+        .match-card {
+            background: var(--card-dark);
+            border-radius: 16px;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.2s ease;
+        }
+
+        .player-block { display: flex; flex-direction: column; gap: 8px; flex: 1;}
+        
+        .player { 
+            font-size: 1.1rem; 
+            font-weight: 500; 
+            display: flex; 
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .rating { font-size: 0.85rem; color: var(--text-muted); background: #2c2c2e; padding: 2px 6px; border-radius: 6px;}
+        
+        .status-block {
+            text-align: right;
+            padding-left: 1rem;
+            border-left: 1px solid var(--border);
+            min-width: 70px;
+        }
+
+        .status-table { font-size: 0.85rem; color: var(--accent); font-weight: 600; margin-bottom: 4px; }
+        .status-score { font-size: 1.4rem; font-weight: 800; letter-spacing: -1px; }
+        .status-time { font-size: 0.85rem; color: var(--text-muted); }
+
+        .highlight { color: var(--accent); font-weight: 700; }
+
+        @keyframes pulse-anim { 0% {opacity: 1;} 50% {opacity: 0.3;} 100% {opacity: 1;} }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Gold Coast Cup <span class="live-indicator"><div class="pulse"></div> LIVE</span></h1>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Find your name or table..." onkeyup="filterDraw()">
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="section-title">The Draw</div>
+        <div id="draw-container">
+            </div>
+    </div>
+
+    <script>
+        // Simulated data from Zermelo/Firebase
+        const liveMatches = [
+            { p1: "Jakob Fensom", p1_rating: 1850, p2: "Winner of Match 4", p2_rating: "---", status: "Waiting", table: "TBD", score: "" },
+            { p1: "Naoya Yamamoto", p1_rating: 2100, p2: "Josh Smith", p2_rating: 1920, status: "Active", table: "Table 1", score: "2 - 1" },
+            { p1: "Clare Doe", p1_rating: 1400, p2: "Sam Jones", p2_rating: 1450, status: "Finished", table: "Table 4", score: "0 - 3" }
+        ];
+
+        function renderMatches(filterText = "") {
+            const container = document.getElementById('draw-container');
+            container.innerHTML = "";
+            const lowerFilter = filterText.toLowerCase();
+
+            liveMatches.forEach(match => {
+                // Search filter (Checks names and table numbers)
+                if (filterText && !match.p1.toLowerCase().includes(lowerFilter) && 
+                    !match.p2.toLowerCase().includes(lowerFilter) && 
+                    !match.table.toLowerCase().includes(lowerFilter)) {
+                    return;
+                }
+
+                // Highlight the searched name dynamically
+                let p1Display = match.p1;
+                let p2Display = match.p2;
+                if (filterText) {
+                    if (match.p1.toLowerCase().includes(lowerFilter)) p1Display = `<span class="highlight">${match.p1}</span>`;
+                    if (match.p2.toLowerCase().includes(lowerFilter)) p2Display = `<span class="highlight">${match.p2}</span>`;
+                }
+
+                // Determine what to show in the right column (Score, Table, or Time)
+                let statusHtml = "";
+                if (match.status === "Active") {
+                    statusHtml = `<div class="status-table">${match.table}</div><div class="status-score">${match.score}</div>`;
+                } else if (match.status === "Finished") {
+                    statusHtml = `<div class="status-time" style="color: #8e8e93;">Final</div><div class="status-score" style="color: #fff;">${match.score}</div>`;
+                } else {
+                    statusHtml = `<div class="status-table" style="color:#ff9f0a;">Upcoming</div><div class="status-time">${match.table}</div>`;
+                }
+
+                container.innerHTML += `
+                    <div class="match-card">
+                        <div class="player-block">
+                            <div class="player">${p1Display} <span class="rating">${match.p1_rating}</span></div>
+                            <div style="color: #38383a; font-size: 0.8rem; margin-left: 10px;">vs</div>
+                            <div class="player">${p2Display} <span class="rating">${match.p2_rating}</span></div>
+                        </div>
+                        <div class="status-block">
+                            ${statusHtml}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function filterDraw() {
+            const query = document.getElementById('searchInput').value;
+            renderMatches(query);
+        }
+
+        // Initial Load
+        renderMatches();
+    </script>
+
+</body>
+</html>
